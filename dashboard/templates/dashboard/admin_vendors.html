@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vendor Management — VENDEX Admin</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap"
+    rel="stylesheet">
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg: #070A10;
+      --surface: #0D1017;
+      --surface2: #111520;
+      --border: #1A1F2E;
+      --border2: #252B3B;
+      --text: #D1D5DB;
+      --muted: #4B5563;
+      --muted2: #6B7280;
+      --accent: #F59E0B;
+      --green: #10B981;
+      --red: #EF4444;
+      --blue: #3B82F6;
+      --fd: 'Syne', sans-serif;
+      --fm: 'JetBrains Mono', monospace;
+    }
+
+    html,
+    body {
+      height: 100%;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--fm);
+      font-size: 13px;
+    }
+
+    ::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--surface);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--border2);
+      border-radius: 2px;
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes blink {
+
+      0%,
+      100% {
+        opacity: 1
+      }
+
+      50% {
+        opacity: .25
+      }
+    }
+
+    .fade-up {
+      animation: fadeUp .4s ease both;
+    }
+
+    /* Header */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 56px;
+      padding: 0 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(7, 10, 16, .9);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo-mark {
+      width: 30px;
+      height: 30px;
+      border-radius: 5px;
+      background: var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .logo-mark svg {
+      display: block;
+    }
+
+    .logo-name {
+      font-family: var(--fd);
+      font-weight: 800;
+      font-size: 15px;
+      color: #fff;
+    }
+
+    .logo-sep {
+      width: 1px;
+      height: 18px;
+      background: var(--border2);
+      margin: 0 4px;
+    }
+
+    .logo-sub {
+      font-size: 9px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .chip {
+      font-size: 10px;
+      padding: 4px 12px;
+      border-radius: 3px;
+      border: 1px solid var(--border2);
+      color: var(--muted2);
+      background: none;
+      font-family: var(--fm);
+      cursor: pointer;
+      text-decoration: none;
+      transition: all .15s;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .chip:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .logout-btn {
+      font-size: 10px;
+      padding: 5px 13px;
+      border-radius: 3px;
+      border: 1px solid var(--border2);
+      color: var(--muted);
+      font-family: var(--fm);
+      cursor: pointer;
+      background: none;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      transition: all .15s;
+    }
+
+    .logout-btn:hover {
+      border-color: var(--red);
+      color: var(--red);
+    }
+
+    /* Nav */
+    nav.tabs {
+      display: flex;
+      border-bottom: 1px solid var(--border);
+      padding: 0 28px;
+    }
+
+    .tab {
+      background: none;
+      border: none;
+      padding: 13px 16px;
+      font-family: var(--fm);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--muted);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      transition: color .15s, border-color .15s;
+    }
+
+    .tab:hover {
+      color: var(--text);
+    }
+
+    .tab.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+    }
+
+    main {
+      padding: 28px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .sec {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 14px;
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: 2.5px;
+      color: var(--muted);
+    }
+
+    .sec::before {
+      content: '';
+      display: block;
+      width: 3px;
+      height: 14px;
+      background: var(--accent);
+      border-radius: 2px;
+    }
+
+    /* Messages */
+    .msg {
+      padding: 10px 16px;
+      border-radius: 4px;
+      font-size: 12px;
+      margin-bottom: 18px;
+      border-left: 3px solid;
+    }
+
+    .msg.success {
+      background: #10B98110;
+      border-color: var(--green);
+      color: var(--green);
+    }
+
+    .msg.error {
+      background: #EF444410;
+      border-color: var(--red);
+      color: var(--red);
+    }
+
+    .msg.warning {
+      background: #F59E0B10;
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* Grid */
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1.6fr;
+      gap: 20px;
+      align-items: start;
+    }
+
+    /* Form Panel */
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 24px;
+    }
+
+    label {
+      display: block;
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--muted2);
+      margin-bottom: 6px;
+    }
+
+    .field {
+      margin-bottom: 16px;
+    }
+
+    input[type=text],
+    input[type=password],
+    input[type=number] {
+      width: 100%;
+      background: #070A10;
+      border: 1px solid var(--border2);
+      border-radius: 4px;
+      padding: 9px 13px;
+      font-family: var(--fm);
+      font-size: 12px;
+      color: var(--text);
+      outline: none;
+      transition: border-color .15s, box-shadow .15s;
+    }
+
+    input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px #F59E0B0D;
+    }
+
+    input::placeholder {
+      color: var(--muted);
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      border: none;
+      border-radius: 4px;
+      padding: 10px 22px;
+      font-family: var(--fd);
+      font-weight: 700;
+      font-size: 13px;
+      color: #070A10;
+      cursor: pointer;
+      transition: background .15s, transform .1s;
+      width: 100%;
+    }
+
+    .btn-primary:hover {
+      background: #FBBF24;
+    }
+
+    .btn-primary:active {
+      transform: scale(.99);
+    }
+
+    /* Table */
+    .table-wrap {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    thead tr {
+      border-bottom: 1px solid var(--border);
+    }
+
+    th {
+      padding: 10px 16px;
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--muted);
+      font-weight: 500;
+      text-align: left;
+    }
+
+    tbody tr {
+      border-bottom: 1px solid #10131D;
+      transition: background .12s;
+    }
+
+    tbody tr:hover {
+      background: var(--surface2);
+    }
+
+    tbody tr:last-child {
+      border-bottom: none;
+    }
+
+    td {
+      padding: 12px 16px;
+      font-size: 12px;
+    }
+
+    .vname {
+      font-family: var(--fd);
+      font-weight: 700;
+      font-size: 13px;
+      color: #E5E7EB;
+    }
+
+    .vid {
+      font-size: 10px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .uname {
+      color: var(--accent);
+    }
+
+    .date {
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .badge-active {
+      font-size: 9px;
+      padding: 2px 8px;
+      border-radius: 2px;
+      border: 1px solid #10B98140;
+      color: var(--green);
+      background: #10B98110;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .btn-del {
+      background: none;
+      border: 1px solid var(--border2);
+      color: var(--muted);
+      border-radius: 3px;
+      padding: 4px 10px;
+      font-family: var(--fm);
+      font-size: 10px;
+      cursor: pointer;
+      transition: all .15s;
+    }
+
+    .btn-del:hover {
+      border-color: var(--red);
+      color: var(--red);
+      background: #EF444410;
+    }
+
+    .empty {
+      text-align: center;
+      color: var(--muted);
+      padding: 36px 16px;
+    }
+
+    .hint {
+      font-size: 10px;
+      color: var(--muted);
+      margin-top: 5px;
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 18px 0;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- HEADER -->
+  <header>
+    <div class="logo">
+      <div class="logo-mark">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M2 12L5.5 7L9 9.5L13.5 3" stroke="#070A10" stroke-width="2.2" stroke-linecap="round"
+            stroke-linejoin="round" />
+        </svg>
+      </div>
+      <span class="logo-name">VENDEX</span>
+      <div class="logo-sep"></div>
+      <span class="logo-sub">Admin Panel</span>
+    </div>
+    <div class="header-right">
+      <span style="font-size:11px;color:var(--muted2)">👤 {{ username }}</span>
+      <form action="{% url 'logout' %}" method="post" style="display:inline">
+        {% csrf_token %}
+        <button type="submit" class="logout-btn">Logout</button>
+      </form>
+    </div>
+  </header>
+
+  <!-- TABS -->
+  <nav class="tabs">
+    <a href="{% url 'home' %}" class="tab">Dashboard</a>
+    <a href="{% url 'admin_vendors' %}" class="tab active">Vendor Management</a>
+  </nav>
+
+  <main class="fade-up">
+
+    <!-- Messages -->
+    {% for msg in messages %}
+    <div
+      class="msg {% if msg.tags == 'success' %}success{% elif msg.tags == 'error' %}error{% else %}warning{% endif %}">
+      {{ msg }}
+    </div>
+    {% endfor %}
+
+    <div class="grid">
+
+      <!-- ADD VENDOR FORM -->
+      <div>
+        <div class="sec">Add New Vendor</div>
+        <div class="panel">
+          <form method="post" action="{% url 'add_vendor' %}">
+            {% csrf_token %}
+
+            <div class="field">
+              <label for="vendor_name">Vendor Name</label>
+              <input type="text" name="vendor_name" id="vendor_name" placeholder="e.g. Apex Supply Co." required>
+            </div>
+
+            <div class="field">
+              <label for="vendor_id">Vendor ID</label>
+              <input type="number" name="vendor_id" id="vendor_id" placeholder="e.g. 101" min="1" required>
+              <div class="hint">Must be a unique integer matching your MySQL data.</div>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="field">
+              <label for="username">Login Username</label>
+              <input type="text" name="username" id="username" placeholder="e.g. apex_vendor" required>
+            </div>
+
+            <div class="field">
+              <label for="password">Login Password</label>
+              <input type="password" name="password" id="password" placeholder="Set a strong password" required>
+            </div>
+
+            <button type="submit" class="btn-primary">Create Vendor Account →</button>
+          </form>
+        </div>
+
+        <!-- CSV Format Guide -->
+        <div class="panel" style="margin-top:16px">
+          <div class="sec" style="margin-bottom:10px">Required CSV Format</div>
+          <div style="font-size:10px;color:var(--muted);line-height:1.8">
+            <div style="color:var(--accent);margin-bottom:6px">sales.csv columns:</div>
+            <code style="font-size:10px;color:var(--text)">brand_id, sales_dollars, quantity, sale_date</code>
+            <div class="divider"></div>
+            <div style="color:var(--accent);margin-bottom:6px">purchases.csv columns:</div>
+            <code style="font-size:10px;color:var(--text)">brand_id, purchase_cost, quantity, purchase_date</code>
+            <div class="divider"></div>
+         
+          </div>
+        </div>
+      </div>
+
+      <!-- VENDOR LIST -->
+      <div>
+        <div class="sec">Registered Vendors ({{ profiles|length }})</div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Vendor</th>
+                <th>Login</th>
+                <th>Status</th>
+                <th>Created</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for p in profiles %}
+              <tr>
+                <td>
+                  <div class="vname">{{ p.vendor_name }}</div>
+                  <div class="vid">ID: {{ p.vendor_id }}</div>
+                </td>
+                <td><span class="uname">{{ p.user.username }}</span></td>
+                <td><span class="badge-active">Active</span></td>
+                <td><span class="date">{{ p.created_at|date:"M d, Y" }}</span></td>
+                <td>
+                  <form method="post" action="{% url 'delete_vendor' p.id %}"
+                    onsubmit="return confirm('Delete {{ p.vendor_name }}? This will remove their login permanently.')">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-del">Delete</button>
+                  </form>
+                </td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="5" class="empty">No vendors yet. Add your first vendor using the form.</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+</body>
+
+</html>

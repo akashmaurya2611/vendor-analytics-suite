@@ -1,0 +1,1422 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vendor Analytics Suite</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap"
+    rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0
+    }
+
+    :root {
+      --bg: #070A10;
+      --surface: #0D1017;
+      --border: #1A1F2E;
+      --border2: #252B3B;
+      --text: #D1D5DB;
+      --muted: #4B5563;
+      --accent: #F59E0B;
+      --green: #10B981;
+      --blue: #3B82F6;
+      --red: #EF4444;
+      --purple: #8B5CF6;
+      --fn: 'JetBrains Mono', monospace;
+      --fd: 'Syne', sans-serif;
+    }
+
+    html,
+    body {
+      height: 100%
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--fn);
+      font-size: 13px
+    }
+
+    ::-webkit-scrollbar {
+      width: 4px
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--surface)
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--border2);
+      border-radius: 2px
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(10px)
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0)
+      }
+    }
+
+    @keyframes blink {
+
+      0%,
+      100% {
+        opacity: 1
+      }
+
+      50% {
+        opacity: .2
+      }
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg)
+      }
+    }
+
+    .fade-up {
+      animation: fadeUp .4s ease both
+    }
+
+    .d1 {
+      animation-delay: .05s
+    }
+
+    .d2 {
+      animation-delay: .1s
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 32px;
+      height: 56px;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 200;
+      background: rgba(7, 10, 16, .94);
+      backdrop-filter: blur(10px)
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px
+    }
+
+    .logo-mark {
+      width: 30px;
+      height: 30px;
+      background: var(--accent);
+      border-radius: 5px;
+      display: flex;
+      align-items: center;
+      justify-content: center
+    }
+
+    .logo-name {
+      font-family: var(--fd);
+      font-weight: 800;
+      font-size: 15px;
+      color: #fff;
+      letter-spacing: .5px
+    }
+
+    .logo-sep {
+      width: 1px;
+      height: 18px;
+      background: var(--border2);
+      margin: 0 4px
+    }
+
+    .logo-sub {
+      font-size: 10px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 2px
+    }
+
+    .hright {
+      display: flex;
+      align-items: center;
+      gap: 10px
+    }
+
+    .live {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 9px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 1.5px
+    }
+
+    .live::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--green);
+      animation: blink 2.5s ease-in-out infinite
+    }
+
+    .badge {
+      font-size: 10px;
+      color: var(--text);
+      padding: 4px 10px;
+      border: 1px solid var(--border2);
+      border-radius: 4px
+    }
+
+    .badge.admin {
+      border-color: #F59E0B40;
+      color: var(--accent);
+      background: #F59E0B08
+    }
+
+    .btn {
+      background: none;
+      border: 1px solid var(--border2);
+      border-radius: 4px;
+      color: var(--muted);
+      padding: 5px 14px;
+      font-family: var(--fn);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      cursor: pointer;
+      transition: all .15s;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px
+    }
+
+    .btn:hover {
+      border-color: var(--text);
+      color: var(--text)
+    }
+
+    .btn.green {
+      border-color: #10B98150;
+      color: var(--green)
+    }
+
+    .btn.green:hover {
+      background: #10B98115
+    }
+
+    .btn.amber {
+      border-color: #F59E0B50;
+      color: var(--accent)
+    }
+
+    .btn.amber:hover {
+      background: #F59E0B15
+    }
+
+    .btn.danger:hover {
+      border-color: var(--red);
+      color: var(--red)
+    }
+
+    nav.tabs {
+      display: flex;
+      border-bottom: 1px solid var(--border);
+      padding: 0 32px
+    }
+
+    .tab {
+      background: none;
+      border: none;
+      padding: 13px 16px;
+      font-family: var(--fn);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--muted);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+      transition: color .15s
+    }
+
+    .tab:hover {
+      color: var(--text)
+    }
+
+    .tab.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent)
+    }
+
+    .tab-link {
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      padding: 13px 16px;
+      font-family: var(--fn);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: #10B981;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+      transition: color .15s
+    }
+
+    .tab-link:hover {
+      color: var(--green)
+    }
+
+    main {
+      padding: 26px 32px;
+      max-width: 1440px;
+      margin: 0 auto
+    }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      margin-bottom: 12px;
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: 2.5px;
+      color: var(--muted)
+    }
+
+    .section-title::before {
+      content: '';
+      width: 3px;
+      height: 14px;
+      background: var(--accent);
+      border-radius: 2px
+    }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 22px
+    }
+
+    .kpi-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 18px 20px;
+      transition: transform .2s
+    }
+
+    .kpi-card:hover {
+      transform: translateY(-2px)
+    }
+
+    .kpi-label {
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--muted);
+      margin-bottom: 6px
+    }
+
+    .kpi-value {
+      font-family: var(--fd);
+      font-weight: 800;
+      font-size: 26px;
+      line-height: 1;
+      margin-bottom: 3px
+    }
+
+    .kpi-sub {
+      font-size: 10px;
+      color: var(--muted)
+    }
+
+    .kpi-accent {
+      color: var(--accent)
+    }
+
+    .kpi-green {
+      color: var(--green)
+    }
+
+    .kpi-blue {
+      color: var(--blue)
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1.6fr 1fr;
+      gap: 14px;
+      margin-bottom: 14px
+    }
+
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 20px 24px
+    }
+
+    .chart-wrap {
+      position: relative;
+      height: 260px;
+      width: 100%
+    }
+
+    .panel-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px
+    }
+
+    .table-wrap {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      overflow: hidden
+    }
+
+    .toolbar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px
+    }
+
+    .search-input {
+      background: var(--surface);
+      border: 1px solid var(--border2);
+      border-radius: 4px;
+      padding: 7px 12px;
+      color: var(--text);
+      font-family: var(--fn);
+      font-size: 11px;
+      width: 260px;
+      outline: none;
+      transition: border-color .15s
+    }
+
+    .search-input::placeholder {
+      color: var(--muted)
+    }
+
+    .search-input:focus {
+      border-color: var(--accent)
+    }
+
+    .count-badge {
+      margin-left: auto;
+      font-size: 10px;
+      color: var(--muted)
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse
+    }
+
+    thead tr {
+      border-bottom: 1px solid var(--border)
+    }
+
+    th {
+      padding: 11px 16px;
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--muted);
+      font-weight: 500;
+      text-align: left;
+      cursor: pointer;
+      user-select: none
+    }
+
+    th:hover,
+    th.sorted {
+      color: var(--accent)
+    }
+
+    tbody tr {
+      border-bottom: 1px solid #141720;
+      transition: background .12s
+    }
+
+    tbody tr:hover {
+      background: #0F1420
+    }
+
+    tbody tr:last-child {
+      border-bottom: none
+    }
+
+    td {
+      padding: 11px 16px;
+      font-size: 12px
+    }
+
+    td.text-center {
+      text-align: center;
+      color: var(--muted);
+      padding: 28px
+    }
+
+    .vname {
+      font-family: var(--fd);
+      font-weight: 700;
+      font-size: 13px;
+      color: #E5E7EB
+    }
+
+    .money {
+      color: var(--accent);
+      font-weight: 600
+    }
+
+    .profit {
+      color: var(--green);
+      font-weight: 600
+    }
+
+    .bar-wrap {
+      display: flex;
+      align-items: center;
+      gap: 7px
+    }
+
+    .mbar {
+      width: 72px;
+      height: 5px;
+      background: var(--border2);
+      border-radius: 3px;
+      overflow: hidden;
+      flex-shrink: 0
+    }
+
+    .mbar-fill {
+      height: 100%;
+      border-radius: 3px;
+      transition: width .5s
+    }
+
+    .mnum {
+      font-size: 10px;
+      color: var(--muted)
+    }
+
+    .form-select {
+      background: var(--surface);
+      border: 1px solid var(--border2);
+      border-radius: 4px;
+      color: var(--text);
+      font-family: var(--fn);
+      font-size: 10px;
+      padding: 6px 10px;
+      outline: none
+    }
+
+    .vendor-banner {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 16px;
+      background: #3B82F608;
+      border: 1px solid #3B82F620;
+      border-radius: 5px;
+      margin-bottom: 20px;
+      font-size: 11px;
+      color: #9CA3AF
+    }
+
+    .vendor-banner strong {
+      color: var(--blue)
+    }
+
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 500;
+      background: rgba(7, 10, 16, .87);
+      backdrop-filter: blur(6px);
+      align-items: center;
+      justify-content: center
+    }
+
+    .modal-overlay.open {
+      display: flex
+    }
+
+    .modal {
+      background: var(--surface);
+      border: 1px solid var(--border2);
+      border-radius: 8px;
+      padding: 32px 36px;
+      width: 520px;
+      position: relative;
+      animation: fadeUp .3s ease both
+    }
+
+    .modal::before {
+      content: '';
+      position: absolute;
+      top: -1px;
+      left: 36px;
+      right: 36px;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent)
+    }
+
+    .modal-title {
+      font-family: var(--fd);
+      font-weight: 800;
+      font-size: 18px;
+      color: #fff;
+      margin-bottom: 4px
+    }
+
+    .modal-sub {
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 24px
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 14px;
+      right: 16px;
+      background: none;
+      border: none;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 22px;
+      line-height: 1
+    }
+
+    .modal-close:hover {
+      color: var(--red)
+    }
+
+    .field {
+      margin-bottom: 16px
+    }
+
+    .field-label {
+      display: block;
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--muted);
+      margin-bottom: 5px
+    }
+
+    .radio-group {
+      display: flex;
+      gap: 10px
+    }
+
+    .radio-option {
+      flex: 1;
+      padding: 10px 14px;
+      border: 1px solid var(--border2);
+      border-radius: 5px;
+      cursor: pointer;
+      transition: all .15s;
+      text-align: center;
+      font-size: 11px
+    }
+
+    .radio-option.selected {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: #F59E0B0A
+    }
+
+    .file-drop {
+      border: 1.5px dashed var(--border2);
+      border-radius: 6px;
+      padding: 24px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color .15s;
+      position: relative
+    }
+
+    .file-drop:hover,
+    .file-drop.dragging {
+      border-color: var(--accent)
+    }
+
+    .file-drop input {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer
+    }
+
+    .file-drop-text {
+      font-size: 11px;
+      color: var(--muted)
+    }
+
+    .file-drop-text span {
+      color: var(--accent)
+    }
+
+    #file-name {
+      font-size: 10px;
+      color: var(--green);
+      margin-top: 6px
+    }
+
+    .file-icon {
+      font-size: 24px;
+      margin-bottom: 6px
+    }
+
+    .upload-note {
+      background: #F59E0B08;
+      border: 1px solid #F59E0B20;
+      border-radius: 4px;
+      padding: 10px 14px;
+      font-size: 10px;
+      color: #9CA3AF;
+      margin-bottom: 16px;
+      line-height: 1.6
+    }
+
+    .upload-note strong {
+      color: var(--accent)
+    }
+
+    .submit-btn {
+      width: 100%;
+      background: var(--accent);
+      border: none;
+      border-radius: 5px;
+      padding: 12px;
+      font-family: var(--fd);
+      font-weight: 700;
+      font-size: 13px;
+      color: #070A10;
+      cursor: pointer;
+      transition: background .15s
+    }
+
+    .submit-btn:hover {
+      background: #FBBF24
+    }
+
+    .submit-btn:disabled {
+      background: var(--border2);
+      color: var(--muted);
+      cursor: not-allowed
+    }
+
+    .upload-status {
+      margin-top: 12px;
+      padding: 10px 14px;
+      border-radius: 4px;
+      font-size: 11px;
+      display: none
+    }
+
+    .upload-status.success {
+      background: #10B98110;
+      border: 1px solid #10B98130;
+      color: var(--green)
+    }
+
+    .upload-status.error {
+      background: #EF444410;
+      border: 1px solid #EF444430;
+      color: var(--red)
+    }
+
+    .spinner {
+      width: 13px;
+      height: 13px;
+      border: 2px solid #0006;
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin .6s linear infinite;
+      display: inline-block
+    }
+
+    .tab-panel {
+      display: none
+    }
+
+    .tab-panel.active {
+      display: block
+    }
+
+    @media(max-width:900px) {
+      .kpi-grid {
+        grid-template-columns: repeat(2, 1fr)
+      }
+
+      .grid-2 {
+        grid-template-columns: 1fr
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <div class="logo">
+      <div class="logo-mark">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M2 12L5.5 7L9 9.5L13.5 3" stroke="#070A10" stroke-width="2.2" stroke-linecap="round"
+            stroke-linejoin="round" />
+        </svg>
+      </div>
+      <span class="logo-name">VENDEX</span>
+      <div class="logo-sep"></div>
+      <span class="logo-sub">Analytics Suite</span>
+    </div>
+    <div class="hright">
+      <div class="live">Live</div>
+      <span class="badge" id="clock">—</span>
+      {% if is_admin %}<span class="badge admin">&#9889; Admin</span>
+      {% else %}<span class="badge">&#128230; {{ vendor_name|default:"Vendor" }}</span>{% endif %}
+      {% if not is_admin or username|lower != 'admin' %}
+      <span class="badge">&#128100; {{ username }}</span>
+      {% endif %}
+      <button class="btn amber" id="uploadBtn">&#8679; Upload CSV</button>
+      <a href="{% url 'export_excel' %}" class="btn green">&#8681; Export</a>
+      <form action="{% url 'logout' %}" method="post" style="margin:0">
+        {% csrf_token %}
+        <button type="submit" class="btn danger">Logout</button>
+      </form>
+    </div>
+  </header>
+
+  <nav class="tabs" role="tablist">
+    <button class="tab active" data-tab="overview" role="tab" aria-selected="true">Overview</button>
+    <button class="tab" data-tab="vendors" role="tab" aria-selected="false">Vendors</button>
+    <button class="tab" data-tab="trends" role="tab" aria-selected="false">Monthly Trend</button>
+    <a href="{% url 'admin_vendors' %}" class="tab-link">⚙ Manage Vendors</a>
+  </nav>
+
+  <main>
+    {% if not is_admin %}
+    <div class="vendor-banner">
+      &#9432; Viewing data for <strong>{{ vendor_name|default:"your vendor account" }}</strong>. Contact an admin to
+      change permissions.
+    </div>
+    {% endif %}
+
+    <div class="tab-panel active" id="tab-overview">
+      <div class="kpi-grid fade-up">
+        <div class="kpi-card">
+          <div class="kpi-label">Total Sales</div>
+          <div class="kpi-value kpi-accent" id="kSales">Rs. --</div>
+          <div class="kpi-sub" id="kSalesSub">Loading...</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Gross Profit</div>
+          <div class="kpi-value kpi-green" id="kProfit">Rs. --</div>
+          <div class="kpi-sub" id="kProfitSub">Loading...</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Profit Margin</div>
+          <div class="kpi-value kpi-blue" id="kMargin">-- %</div>
+          <div class="kpi-sub">Net margin on sales</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Active Vendors</div>
+          <div class="kpi-value kpi-accent" id="kVendors">--</div>
+          <div class="kpi-sub">In analytics view</div>
+        </div>
+      </div>
+      <div class="grid-2 fade-up d2">
+        <div class="panel">
+          <div class="panel-toolbar">
+            <div class="section-title">Vendor Performance</div>
+            <select class="form-select" id="filterType" aria-label="Filter vendor performance">
+              <option value="top">Top 10</option>
+              <option value="bottom">Bottom 10</option>
+            </select>
+          </div>
+          <div class="chart-wrap">
+            <canvas id="barChart" aria-label="Vendor sales and profit chart"></canvas>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="section-title">Profit Margin by Vendor</div>
+          <div class="chart-wrap">
+            <canvas id="marginChart" aria-label="Profit margin by vendor chart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tab-panel" id="tab-vendors">
+      <div class="fade-up">
+        <div class="toolbar">
+          <input class="search-input" id="vendorSearch" placeholder="Search vendor..." type="text"
+            aria-label="Search vendors by name">
+          <span class="count-badge" id="vendorCount" aria-live="polite">--</span>
+        </div>
+        <div class="table-wrap">
+          <table role="grid" aria-label="Vendor performance data">
+            <thead>
+              <tr>
+                <th data-sort="name" role="columnheader">Vendor</th>
+                <th data-sort="sales" class="sorted" role="columnheader">Sales (desc)</th>
+                <th data-sort="profit" role="columnheader">Profit</th>
+                <th data-sort="margin" role="columnheader">Margin</th>
+              </tr>
+            </thead>
+            <tbody id="vendorTbody">
+              <tr>
+                <td colspan="4" class="text-center">Loading...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="tab-panel" id="tab-trends">
+      <div class="panel fade-up">
+        <div class="section-title">Monthly Sales Trend</div>
+        <div class="chart-wrap" style="height:200px">
+          <canvas id="monthlyChart" aria-label="Monthly sales trend chart"></canvas>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <div class="modal-overlay" id="uploadModal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal">
+      <button class="modal-close" id="modalClose" aria-label="Close upload dialog">×</button>
+      <div class="modal-title" id="modal-title">Upload CSV Data</div>
+      <div class="modal-sub">Append new records. Existing data is preserved.</div>
+      <div class="field">
+        <label class="field-label">Data Type</label>
+        <div class="radio-group">
+          <div class="radio-option selected" data-val="sales" role="radio" aria-checked="true">Sales</div>
+          <div class="radio-option" data-val="purchases" role="radio" aria-checked="false">Purchases</div>
+        </div>
+      </div>
+      <div class="upload-note" id="uploadNote" aria-live="polite">
+        <strong>Sales columns:</strong> vendor_id, vendor_name, brand_id, sales_dollars, quantity, sale_date
+      </div>
+      <div class="field">
+        <label class="field-label" for="csvFile">Select File</label>
+        <div class="file-drop" id="fileDrop">
+          <input type="file" id="csvFile" accept=".csv" aria-label="CSV file input">
+          <div class="file-icon">📁</div>
+          <div class="file-drop-text">Drop CSV here or <span>browse</span></div>
+          <div id="file-name" aria-live="polite"></div>
+        </div>
+      </div>
+      <button class="submit-btn" id="uploadSubmit" disabled>Upload File</button>
+      <div class="upload-status" id="uploadStatus" aria-live="polite" aria-atomic="true"></div>
+    </div>
+  </div>
+
+  <script>
+    // Chart Configuration
+    Chart.defaults.color = '#4B5563';
+    Chart.defaults.font.family = "'JetBrains Mono',monospace";
+    Chart.defaults.font.size = 11;
+    Chart.defaults.borderColor = '#1A1F2E';
+
+    const CHART_TOOLTIP = {
+      backgroundColor: '#0D1017',
+      borderColor: '#252B3B',
+      borderWidth: 1,
+      titleFont: { family: "'JetBrains Mono',monospace", size: 11, weight: '700' },
+      bodyFont: { family: "'JetBrains Mono',monospace", size: 11 },
+      titleColor: '#F59E0B',
+      bodyColor: '#9CA3AF',
+      padding: 12,
+      cornerRadius: 4
+    };
+
+    const COLOR_CONFIG = {
+      COLUMN_HEADERS: {
+        sales: '#F59E0B',
+        profit: '#10B981',
+        profitBg: '#10B98144',
+        salesBg: '#F59E0B44'
+      },
+      MARGIN_THRESHOLDS: {
+        high: { color: '#10B981', bg: '#10B98166', min: 30 },
+        mid: { color: '#F59E0B', bg: '#F59E0B66', min: 15 },
+        low: { color: '#EF4444', bg: '#EF444466', min: 0 }
+      }
+    };
+
+    // DOM Elements
+    const DOM = {
+      clock: document.getElementById('clock'),
+      filterType: document.getElementById('filterType'),
+      tabButtons: document.querySelectorAll('.tab'),
+      tabPanels: document.querySelectorAll('.tab-panel'),
+      kpiSales: document.getElementById('kSales'),
+      kpiProfit: document.getElementById('kProfit'),
+      kpiMargin: document.getElementById('kMargin'),
+      kpiVendors: document.getElementById('kVendors'),
+      kpiSalesSub: document.getElementById('kSalesSub'),
+      kpiProfitSub: document.getElementById('kProfitSub'),
+      barChart: document.getElementById('barChart'),
+      marginChart: document.getElementById('marginChart'),
+      monthlyChart: document.getElementById('monthlyChart'),
+      vendorSearch: document.getElementById('vendorSearch'),
+      vendorCount: document.getElementById('vendorCount'),
+      vendorTbody: document.getElementById('vendorTbody'),
+      uploadBtn: document.getElementById('uploadBtn'),
+      uploadModal: document.getElementById('uploadModal'),
+      modalClose: document.getElementById('modalClose'),
+      csvFile: document.getElementById('csvFile'),
+      fileDrop: document.getElementById('fileDrop'),
+      fileDropText: document.getElementById('file-name'),
+      uploadSubmit: document.getElementById('uploadSubmit'),
+      uploadStatus: document.getElementById('uploadStatus'),
+      uploadNote: document.getElementById('uploadNote'),
+      radioOptions: document.querySelectorAll('.radio-option')
+    };
+
+    // State
+    let chartInstances = { bar: null, margin: null, monthly: null };
+    let vendorData = [];
+    let tableState = { field: 'sales', dir: 'desc' };
+    let uploadType = 'sales';
+
+    // Formatting Functions
+    const formatINR = (n) => {
+      if (n >= 1e7) return `Rs. ${(n / 1e7).toFixed(2)} Cr`;
+      if (n >= 1e5) return `Rs. ${(n / 1e5).toFixed(2)} L`;
+      if (n >= 1e3) return `Rs. ${(n / 1e3).toFixed(1)}K`;
+      return `Rs. ${n.toFixed(0)}`;
+    };
+
+    const formatShort = (n) => {
+      if (n >= 1e7) return `${(n / 1e7).toFixed(2)} Cr`;
+      if (n >= 1e5) return `${(n / 1e5).toFixed(1)} L`;
+      return n.toLocaleString('en-IN');
+    };
+
+    const getMarginColor = (margin) => {
+      if (margin >= 30) return COLOR_CONFIG.MARGIN_THRESHOLDS.high.color;
+      if (margin >= 15) return COLOR_CONFIG.MARGIN_THRESHOLDS.mid.color;
+      return COLOR_CONFIG.MARGIN_THRESHOLDS.low.color;
+    };
+
+    // API Error Handler
+    const handleApiError = (endpoint, error) => {
+      console.error(`API Error (${endpoint}):`, error);
+      return null;
+    };
+
+    // API Calls with Error Handling
+    const api = {
+      summary: () => fetch('/api/summary/').then(r => r.json()).catch(e => handleApiError('summary', e)),
+      data: (type = 'top') => fetch(`/api/data/?type=${type}`).then(r => r.json()).catch(e => handleApiError('data', e)),
+      monthly: () => fetch('/api/monthly/').then(r => r.json()).catch(e => handleApiError('monthly', e)),
+      vendors: () => fetch('/api/vendors/').then(r => r.json()).catch(e => handleApiError('vendors', e)),
+      upload: (formData, csrf) => fetch('{% url "api_admin_upload" %}', { method: 'POST', body: formData, headers: { 'X-CSRFToken': csrf } }).then(r => r.json()).catch(e => handleApiError('upload', e))
+    };
+
+    // Clock Update
+    function updateClock() {
+      const now = new Date().toLocaleString('en-IN', {
+        weekday: 'short', month: 'short', day: 'numeric',
+        hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
+      });
+      DOM.clock.textContent = now;
+      setTimeout(updateClock, 1000);
+    }
+
+    // Animated Value Counter
+    function animateValue(el, end, prefix = '') {
+      const steps = 40, duration = 800, increment = end / steps;
+      let current = 0, step = 0;
+      const interval = setInterval(() => {
+        current += increment;
+        step++;
+        el.textContent = (step >= steps) ? prefix + formatShort(end) : prefix + formatShort(Math.floor(current));
+        if (step >= steps) clearInterval(interval);
+      }, duration / steps);
+    }
+
+    // Load Summary KPIs
+    async function loadSummary() {
+      const data = await api.summary();
+      if (!data) return;
+
+      animateValue(DOM.kpiSales, data.total_sales, 'Rs. ');
+      animateValue(DOM.kpiProfit, data.total_profit, 'Rs. ');
+      DOM.kpiMargin.textContent = data.profit_margin + '%';
+      DOM.kpiVendors.textContent = data.vendor_count;
+      DOM.kpiSalesSub.textContent = data.vendor_count + ' vendors';
+      DOM.kpiProfitSub.textContent = data.profit_margin + '% margin';
+    }
+
+    // Load Charts
+    async function loadCharts(type = 'top') {
+      const data = await api.data(type);
+      if (!data) return;
+
+      // Bar Chart
+      if (chartInstances.bar) chartInstances.bar.destroy();
+      chartInstances.bar = new Chart(DOM.barChart, {
+        type: 'bar',
+        data: {
+          labels: data.labels,
+          datasets: [
+            {
+              label: 'Sales (Rs.)',
+              data: data.sales,
+              backgroundColor: COLOR_CONFIG.COLUMN_HEADERS.salesBg,
+              borderColor: COLOR_CONFIG.COLUMN_HEADERS.sales,
+              borderWidth: 1.5,
+              borderRadius: 3
+            },
+            {
+              label: 'Profit (Rs.)',
+              data: data.profit,
+              backgroundColor: COLOR_CONFIG.COLUMN_HEADERS.profitBg,
+              borderColor: COLOR_CONFIG.COLUMN_HEADERS.profit,
+              borderWidth: 1.5,
+              borderRadius: 3
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          animation: { duration: 800, easing: 'easeInOutQuart' },
+          plugins: {
+            legend: { position: 'bottom', labels: { boxWidth: 10, padding: 14 } },
+            tooltip: { ...CHART_TOOLTIP, callbacks: { label: ctx => ` ${ctx.dataset.label}: ${formatINR(ctx.raw)}` } }
+          },
+          scales: {
+            x: { grid: { color: '#1A1F2E' }, ticks: { maxRotation: 30 } },
+            y: {
+              beginAtZero: true,
+              grid: { color: '#1A1F2E' },
+              ticks: { callback: v => formatINR(v) }
+            }
+          }
+        }
+      });
+
+      // Margin Chart
+      if (chartInstances.margin) chartInstances.margin.destroy();
+      chartInstances.margin = new Chart(DOM.marginChart, {
+        type: 'bar',
+        data: {
+          labels: data.labels,
+          datasets: [{
+            label: 'Margin %',
+            data: data.margin,
+            backgroundColor: data.margin.map(m => m >= 30 ? '#10B98166' : m >= 15 ? '#F59E0B66' : '#EF444466'),
+            borderColor: data.margin.map(m => m >= 30 ? '#10B981' : m >= 15 ? '#F59E0B' : '#EF4444'),
+            borderWidth: 1.5,
+            borderRadius: 4
+          }]
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          maintainAspectRatio: false,
+          animation: { duration: 800 },
+          plugins: {
+            legend: { display: false },
+            tooltip: { ...CHART_TOOLTIP, callbacks: { label: ctx => ` ${ctx.raw}%` } }
+          },
+          scales: {
+            x: { grid: { color: '#1A1F2E' }, ticks: { callback: v => v + '%' } },
+            y: { grid: { color: '#1A1F2E' } }
+          }
+        }
+      });
+    }
+
+    // Load Monthly Trend
+    async function loadMonthlyChart() {
+      const data = await api.monthly();
+      if (!data) return;
+
+      if (chartInstances.monthly) chartInstances.monthly.destroy();
+      chartInstances.monthly = new Chart(DOM.monthlyChart, {
+        type: 'line',
+        data: {
+          labels: data.months,
+          datasets: [{
+            label: 'Monthly Sales',
+            data: data.sales,
+            borderColor: '#8B5CF6',
+            borderWidth: 2.5,
+            backgroundColor: '#8B5CF608',
+            tension: 0.35,
+            fill: true,
+            pointBackgroundColor: '#8B5CF6',
+            pointRadius: 4,
+            pointHoverRadius: 6
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          animation: { duration: 800 },
+          plugins: {
+            legend: { display: false },
+            tooltip: { ...CHART_TOOLTIP, callbacks: { label: ctx => ` ${formatINR(ctx.raw)}` } }
+          },
+          scales: {
+            x: { grid: { color: '#1A1F2E' } },
+            y: { grid: { color: '#1A1F2E' }, ticks: { callback: v => formatINR(v) } }
+          }
+        }
+      });
+    }
+
+    // Load Vendors Table
+    async function loadVendorsData() {
+      const data = await api.vendors();
+      if (!data?.vendors) return;
+
+      vendorData = data.vendors;
+      renderVendorTable();
+    }
+
+    // Render Vendors Table
+    function renderVendorTable() {
+      const query = DOM.vendorSearch.value.toLowerCase();
+      let rows = vendorData.filter(v => v.name.toLowerCase().includes(query));
+
+      DOM.vendorCount.textContent = rows.length + ' vendors';
+
+      rows.sort((a, b) => {
+        const multiplier = tableState.dir === 'desc' ? -1 : 1;
+        if (tableState.field === 'name') return a.name.localeCompare(b.name) * multiplier;
+        return (a[tableState.field] - b[tableState.field]) * multiplier;
+      });
+
+      DOM.vendorTbody.innerHTML = rows.length ? rows.map(v => `
+    <tr>
+      <td><span class="vname">${v.name}</span></td>
+      <td><span class="money">${formatINR(v.sales)}</span></td>
+      <td><span class="profit">${formatINR(v.profit)}</span></td>
+      <td>
+        <div class="bar-wrap">
+          <div class="mbar">
+            <div class="mbar-fill" style="width:${Math.min(v.margin, 100)}%;background:${getMarginColor(v.margin)}"></div>
+          </div>
+          <span class="mnum">${v.margin}%</span>
+        </div>
+      </td>
+    </tr>
+  `).join('') : '<tr><td colspan="4" class="text-center">No results</td></tr>';
+    }
+
+    // Load All Data
+    async function loadAllData() {
+      await Promise.all([
+        loadSummary(),
+        loadCharts(DOM.filterType.value),
+        loadMonthlyChart(),
+        loadVendorsData()
+      ]);
+    }
+
+    // Tab Navigation
+    function initializeTabs() {
+      DOM.tabButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          DOM.tabButtons.forEach(t => t.classList.remove('active'));
+          DOM.tabPanels.forEach(p => p.classList.remove('active'));
+          btn.setAttribute('aria-selected', 'true');
+          btn.classList.add('active');
+          document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+        });
+      });
+    }
+
+    // Modal Functions
+    function openModal() {
+      DOM.uploadModal.classList.add('open');
+    }
+
+    function closeModal() {
+      DOM.uploadModal.classList.remove('open');
+      DOM.csvFile.value = '';
+      DOM.fileDropText.textContent = '';
+      DOM.uploadStatus.style.display = 'none';
+      DOM.uploadSubmit.disabled = true;
+    }
+
+    // Upload Modal Events
+    function initializeUploadModal() {
+      DOM.uploadBtn.addEventListener('click', openModal);
+      DOM.modalClose.addEventListener('click', closeModal);
+      DOM.uploadModal.addEventListener('click', e => {
+        if (e.target === DOM.uploadModal) closeModal();
+      });
+
+      // Radio options
+      DOM.radioOptions.forEach(opt => {
+        opt.addEventListener('click', () => {
+          DOM.radioOptions.forEach(o => o.classList.remove('selected'));
+          opt.classList.add('selected');
+          uploadType = opt.dataset.val;
+          const notes = {
+            sales: '<strong>Sales columns:</strong> vendor_id, vendor_name, brand_id, sales_dollars, quantity, sale_date',
+            purchases: '<strong>Purchases columns:</strong> vendor_id, brand_id, purchase_cost, quantity, purchase_date'
+          };
+          DOM.uploadNote.innerHTML = notes[uploadType];
+        });
+      });
+
+      // File input
+      DOM.csvFile.addEventListener('change', function () {
+        const fileName = this.files[0]?.name || '';
+        DOM.fileDropText.textContent = fileName ? `File: ${fileName}` : '';
+        DOM.uploadSubmit.disabled = !fileName;
+        DOM.uploadStatus.style.display = 'none';
+      });
+
+      // Drag and drop
+      DOM.fileDrop.addEventListener('dragover', e => {
+        e.preventDefault();
+        DOM.fileDrop.classList.add('dragging');
+      });
+
+      DOM.fileDrop.addEventListener('dragleave', () => {
+        DOM.fileDrop.classList.remove('dragging');
+      });
+
+      DOM.fileDrop.addEventListener('drop', e => {
+        e.preventDefault();
+        DOM.fileDrop.classList.remove('dragging');
+        const file = e.dataTransfer.files[0];
+        if (file) {
+          const dt = new DataTransfer();
+          dt.items.add(file);
+          DOM.csvFile.files = dt.files;
+          DOM.fileDropText.textContent = `File: ${file.name}`;
+          DOM.uploadSubmit.disabled = false;
+        }
+      });
+
+      // Submit
+      DOM.uploadSubmit.addEventListener('click', handleUpload);
+    }
+
+    // Handle File Upload
+    async function handleUpload() {
+      const file = DOM.csvFile.files[0];
+      if (!file) return;
+
+      DOM.uploadSubmit.disabled = true;
+      DOM.uploadSubmit.innerHTML = '<span class="spinner"></span> Uploading...';
+      DOM.uploadStatus.style.display = 'none';
+
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('type', uploadType);
+
+      const csrf = '{{ csrf_token }}';
+
+      const result = await api.upload(formData, csrf);
+
+      if (!result) {
+        showUploadError('Network error. Please try again.');
+        return;
+      }
+
+      if (result.success) {
+        showUploadSuccess(`Success: ${result.message}`);
+        setTimeout(() => {
+          closeModal();
+          loadAllData();
+        }, 1800);
+      } else {
+        showUploadError(`Error: ${result.error}`);
+      }
+
+      DOM.uploadSubmit.disabled = false;
+      DOM.uploadSubmit.textContent = 'Upload File';
+    }
+
+    function showUploadSuccess(message) {
+      DOM.uploadStatus.className = 'upload-status success';
+      DOM.uploadStatus.textContent = message;
+      DOM.uploadStatus.style.display = 'block';
+    }
+
+    function showUploadError(message) {
+      DOM.uploadStatus.className = 'upload-status error';
+      DOM.uploadStatus.textContent = message;
+      DOM.uploadStatus.style.display = 'block';
+    }
+
+    // Event Listeners
+    function initializeEventListeners() {
+      // Filter change
+      DOM.filterType.addEventListener('change', () => loadCharts(DOM.filterType.value));
+
+      // Vendor search
+      DOM.vendorSearch.addEventListener('input', renderVendorTable);
+
+      // Table sorting
+      document.querySelectorAll('th[data-sort]').forEach(th => {
+        th.addEventListener('click', () => {
+          if (tableState.field === th.dataset.sort) {
+            tableState.dir = tableState.dir === 'desc' ? 'asc' : 'desc';
+          } else {
+            tableState.field = th.dataset.sort;
+            tableState.dir = 'desc';
+          }
+          document.querySelectorAll('th').forEach(t => t.classList.remove('sorted'));
+          th.classList.add('sorted');
+          renderVendorTable();
+        });
+      });
+    }
+
+    // Initialize Application
+    async function init() {
+      updateClock();
+      initializeTabs();
+      initializeUploadModal();
+      initializeEventListeners();
+      await loadAllData();
+      setInterval(loadAllData, 10000);
+    }
+
+    // Start Application
+    document.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+
+</html>

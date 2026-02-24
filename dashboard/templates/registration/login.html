@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sign In — Vendor Analytics Suite</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  min-height: 100vh;
+  background: #070A10;
+  font-family: 'JetBrains Mono', monospace;
+  display: flex; align-items: center; justify-content: center;
+  position: relative; overflow: hidden;
+}
+
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image:
+    linear-gradient(#1A1F2E 1px, transparent 1px),
+    linear-gradient(90deg, #1A1F2E 1px, transparent 1px);
+  background-size: 48px 48px;
+  opacity: 0.35;
+}
+
+body::after {
+  content: '';
+  position: fixed; top: 50%; left: 50%;
+  width: 600px; height: 600px;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle, #F59E0B09 0%, transparent 70%);
+  pointer-events: none;
+}
+
+@keyframes fadeUp {
+  from { opacity:0; transform:translateY(14px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+
+.card {
+  position: relative; z-index: 1;
+  width: 420px;
+  background: #0D1017;
+  border: 1px solid #1A1F2E;
+  border-radius: 10px;
+  padding: 40px 40px 36px;
+  animation: fadeUp .5s ease both;
+  box-shadow: 0 0 0 1px #F59E0B06, 0 32px 80px #00000070;
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  top: -1px; left: 40px; right: 40px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #F59E0B, transparent);
+}
+
+.brand { display:flex; align-items:center; gap:10px; margin-bottom:30px; }
+
+.brand-mark {
+  width:32px; height:32px; border-radius:5px; background:#F59E0B;
+  display:flex; align-items:center; justify-content:center;
+}
+
+.brand-name {
+  font-family:'Syne',sans-serif;
+  font-weight:800; font-size:15px; color:#fff;
+}
+
+.brand-sub {
+  font-size:9px; color:#4B5563;
+  text-transform:uppercase; letter-spacing:2px;
+}
+
+h1 {
+  font-family:'Syne',sans-serif;
+  font-weight:800; font-size:22px;
+  color:#F5F5F5; margin-bottom:5px;
+}
+
+.subtitle {
+  font-size:11px; color:#4B5563;
+  margin-bottom:26px;
+}
+
+.field { margin-bottom:15px; }
+
+label {
+  display:block;
+  font-size:9px;
+  text-transform:uppercase;
+  letter-spacing:2px;
+  color:#6B7280;
+  margin-bottom:6px;
+}
+
+input {
+  width:100%;
+  background:#070A10;
+  border:1px solid #1A1F2E;
+  border-radius:5px;
+  padding:10px 14px;
+  font-size:13px;
+  color:#D1D5DB;
+  outline:none;
+  transition:.15s;
+}
+
+input:focus {
+  border-color:#F59E0B;
+  box-shadow:0 0 0 3px #F59E0B0D;
+}
+
+.error-box {
+  background:#EF444410;
+  border:1px solid #EF444430;
+  color:#EF4444;
+  font-size:11px;
+  padding:10px 14px;
+  border-radius:4px;
+  margin-bottom:14px;
+}
+
+button[type=submit] {
+  width:100%;
+  background:#F59E0B;
+  border:none;
+  border-radius:5px;
+  padding:12px;
+  font-family:'Syne',sans-serif;
+  font-weight:700;
+  font-size:13px;
+  color:#070A10;
+  cursor:pointer;
+  margin-top:8px;
+  transition:.15s;
+}
+
+button[type=submit]:hover { background:#FBBF24; }
+
+.footer {
+  margin-top:22px;
+  font-size:10px;
+  color:#374151;
+  text-align:center;
+}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+
+  <div class="brand">
+    <div class="brand-mark">
+      <svg width="17" height="17" viewBox="0 0 17 17" fill="none">
+        <path d="M2 13L6 8L9.5 10.5L14 3.5"
+              stroke="#070A10" stroke-width="2.3"
+              stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <div>
+      <div class="brand-name">VENDEX</div>
+      <div class="brand-sub">Analytics Suite</div>
+    </div>
+  </div>
+
+  <h1>Welcome back</h1>
+  <p class="subtitle">Sign in to access your vendor analytics dashboard.</p>
+
+  <form method="post">
+    {% csrf_token %}
+
+    {% if form.non_field_errors %}
+      <div class="error-box">
+        ⚠ Invalid credentials — please try again.
+      </div>
+    {% endif %}
+
+    <div class="field">
+      <label for="id_username">Username</label>
+      <input type="text"
+             name="username"
+             id="id_username"
+             value="{{ form.username.value|default:'' }}"
+             placeholder="Enter username"
+             required autofocus>
+    </div>
+
+    <div class="field">
+      <label for="id_password">Password</label>
+      <input type="password"
+             name="password"
+             id="id_password"
+             placeholder="••••••••••"
+             required>
+    </div>
+
+    <button type="submit">Sign In →</button>
+  </form>
+
+  <div class="footer">
+    Vendor Analytics Suite · Authorized Access Only
+  </div>
+
+</div>
+
+</body>
+</html>
