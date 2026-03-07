@@ -544,17 +544,20 @@
         </div>
 
         <!-- CSV Format Guide -->
-        <div class="panel" style="margin-top:16px">
-          <div class="sec" style="margin-bottom:10px">Required CSV Format</div>
-          <div style="font-size:10px;color:var(--muted);line-height:1.8">
-            <div style="color:var(--accent);margin-bottom:6px">sales.csv columns:</div>
-            <code style="font-size:10px;color:var(--text)">brand_id, sales_dollars, quantity, sale_date</code>
-            <div class="divider"></div>
-            <div style="color:var(--accent);margin-bottom:6px">purchases.csv columns:</div>
-            <code style="font-size:10px;color:var(--text)">brand_id, purchase_cost, quantity, purchase_date</code>
-            <div class="divider"></div>
-         
-          </div>
+        <!-- 
+          To ingest data successfully through the utils.py script, 
+          ensure the CSV files follow this exact format:
+          
+          sales.csv: 
+          vendor_id, brand_id, sales_dollars, quantity, sale_date
+          
+          purchases.csv: 
+          vendor_id, brand_id, purchase_cost, quantity, purchase_date
+        -->
+        <div class="note" style="margin-top: 16px; padding: 12px; background: var(--surface2); border: 1px solid var(--border); border-radius: 4px; font-size: 10px; color: var(--muted);">
+          <strong>CSV Reference:</strong><br>
+          Sales: <code>brand_id, sales_dollars, quantity, sale_date</code><br>
+          Purchases: <code>brand_id, purchase_cost, quantity, purchase_date</code>
         </div>
       </div>
 
