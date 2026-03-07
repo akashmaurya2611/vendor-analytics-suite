@@ -594,28 +594,33 @@
     <!-- Upload Section -->
     <div class="sec d2">Upload Data</div>
     <div class="upload-single fade-up d2">
-      <h3>Central Upload</h3>
-      <p>Select the data type and upload your CSV file. Existing data for the selected type will be replaced.</p>
+      <h3>Upload Sales and Purchase Data</h3>
+
 
       <form method="post" action="{% url 'vendor_upload' %}" enctype="multipart/form-data" id="uploadForm">
         {% csrf_token %}
 
-        <div class="type-toggle">
-          <input type="radio" name="upload_type" value="sales" id="typeSales" checked>
-          <label for="typeSales">📈 SALES</label>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+          <!-- Sales Upload Zone -->
+          <div class="file-zone" id="uploadZoneSales">
+            <input type="file" name="sales_file" accept=".csv" id="salesFile"
+              onchange="showFileName('salesFile','salesFileName')">
+            <div class="file-zone-icon">📈</div>
+            <div class="file-zone-text">Sales CSV<br>Click or drag & drop</div>
+            <div class="file-zone-name" id="salesFileName">No file selected</div>
+          </div>
 
-          <input type="radio" name="upload_type" value="purchases" id="typePurchases">
-          <label for="typePurchases">🛒 PURCHASES</label>
+          <!-- Purchases Upload Zone -->
+          <div class="file-zone" id="uploadZonePurchases">
+            <input type="file" name="purchases_file" accept=".csv" id="purchasesFile"
+              onchange="showFileName('purchasesFile','purchasesFileName')">
+            <div class="file-zone-icon">🛒</div>
+            <div class="file-zone-text">Purchases CSV<br>Click or drag & drop</div>
+            <div class="file-zone-name" id="purchasesFileName">No file selected</div>
+          </div>
         </div>
 
-        <div class="file-zone" id="uploadZone">
-          <input type="file" name="csv_file" accept=".csv" id="csvFile" onchange="showFileName('csvFile','fileName')">
-          <div class="file-zone-icon">📂</div>
-          <div class="file-zone-text">Click to select or drag & drop</div>
-          <div class="file-zone-name" id="fileName">No file selected</div>
-        </div>
-
-        <button type="submit" class="btn-upload" id="submitBtn">Process Upload →</button>
+        <button type="submit" class="btn-upload" id="submitBtn">Upload Files →</button>
       </form>
     </div>
 
@@ -649,26 +654,6 @@
       const label = document.getElementById(labelId);
       label.textContent = input.files.length > 0 ? '✓ ' + input.files[0].name : 'No file selected';
     }
-
-    // Dynamic button color and text based on selection
-    const typeSales = document.getElementById('typeSales');
-    const typePurchases = document.getElementById('typePurchases');
-    const submitBtn = document.getElementById('submitBtn');
-
-    function updateBtn() {
-      if (typeSales.checked) {
-        submitBtn.style.background = 'var(--accent)';
-        submitBtn.textContent = 'Upload Sales CSV →';
-      } else {
-        submitBtn.style.background = 'var(--green)';
-        submitBtn.style.color = '#fff';
-        submitBtn.textContent = 'Upload Purchases CSV →';
-      }
-    }
-
-    typeSales.addEventListener('change', updateBtn);
-    typePurchases.addEventListener('change', updateBtn);
-    updateBtn();
   </script>
 </body>
 

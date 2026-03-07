@@ -139,68 +139,66 @@ def vendor_upload(request):
     if request.method != 'POST':
         return redirect('vendor_portal')
 
-    upload_type = request.POST.get('upload_type')   # 'sales' or 'purchases'
-    csv_file    = request.FILES.get('csv_file')
+    sales_file = request.FILES.get('sales_file')
+    purchases_file = request.FILES.get('purchases_file')
 
-    if not csv_file:
-        messages.error(request, "No file selected.")
+    if not sales_file and not purchases_file:
+        messages.error(request, "No files selected.")
         return redirect('vendor_portal')
-
-    if not csv_file.name.endswith('.csv'):
-        messages.error(request, "Only CSV files are accepted.")
-        return redirect('vendor_portal')
-
-    try:
-        df = pd.read_csv(csv_file)
-    except Exception as e:
-        messages.error(request, f"Could not read CSV: {e}")
-        return redirect('vendor_portal')
-    
-    if df.empty:
-        messages.error(request, "CSV file is empty.")
-        return redirect('vendor_portal')
-
-    # Force vendor_id = profile.vendor_id
-    df['vendor_id'] = profile.vendor_id
 
     engine = get_engine()
-
-    try:
-        if upload_type == 'sales':
-            required = {'brand_id', 'sales_dollars', 'quantity', 'sale_date'}
-            missing  = required - set(df.columns)
-            if missing:
-                messages.error(request, f"Missing columns: {', '.join(missing)}")
-                return redirect('vendor_portal')
-
-            df['sale_date'] = pd.to_datetime(df['sale_date'], errors='coerce').dt.date
-
-            with engine.begin() as conn:
-                df[['vendor_id','brand_id','sales_dollars','quantity','sale_date']].to_sql(
-                    'raw_sales', con=conn, if_exists='append', index=False
-                )
-            messages.success(request, f"✓ {len(df)} sales rows uploaded successfully.")
-
-        elif upload_type == 'purchases':
-            required = {'brand_id', 'purchase_cost', 'quantity', 'purchase_date'}
-            missing  = required - set(df.columns)
-            if missing:
-                messages.error(request, f"Missing columns: {', '.join(missing)}")
-                return redirect('vendor_portal')
-
-            df['purchase_date'] = pd.to_datetime(df['purchase_date'], errors='coerce').dt.date
-
-            with engine.begin() as conn:
-                df[['vendor_id','brand_id','purchase_cost','quantity','purchase_date']].to_sql(
-                    'raw_purchases', con=conn, if_exists='append', index=False
-                )
-            messages.success(request, f"✓ {len(df)} purchase rows uploaded successfully.")
-
+    
+    # Process Sales File
+    if sales_file:
+        if not sales_file.name.endswith('.csv'):
+            messages.error(request, "Sales file must be a CSV.")
         else:
-            messages.error(request, "Invalid upload type.")
+            try:
+                df_sales = pd.read_csv(sales_file)
+                if df_sales.empty:
+                    messages.warning(request, "Sales CSV is empty.")
+                else:
+                    df_sales['vendor_id'] = profile.vendor_id
+                    required_sales = {'brand_id', 'sales_dollars', 'quantity', 'sale_date'}
+                    missing_sales = required_sales - set(df_sales.columns)
+                    
+                    if missing_sales:
+                        messages.error(request, f"Sales CSV missing columns: {', '.join(missing_sales)}")
+                    else:
+                        df_sales['sale_date'] = pd.to_datetime(df_sales['sale_date'], errors='coerce').dt.date
+                        with engine.begin() as conn:
+                            df_sales[['vendor_id','brand_id','sales_dollars','quantity','sale_date']].to_sql(
+                                'raw_sales', con=conn, if_exists='append', index=False
+                            )
+                        messages.success(request, f"✓ {len(df_sales)} sales rows uploaded.")
+            except Exception as e:
+                messages.error(request, f"Sales CSV read failed: {e}")
 
-    except Exception as e:
-        messages.error(request, f"Upload failed: {e}")
+    # Process Purchases File
+    if purchases_file:
+        if not purchases_file.name.endswith('.csv'):
+            messages.error(request, "Purchases file must be a CSV.")
+        else:
+            try:
+                df_purchases = pd.read_csv(purchases_file)
+                if df_purchases.empty:
+                    messages.warning(request, "Purchases CSV is empty.")
+                else:
+                    df_purchases['vendor_id'] = profile.vendor_id
+                    required_purchases = {'brand_id', 'purchase_cost', 'quantity', 'purchase_date'}
+                    missing_purchases = required_purchases - set(df_purchases.columns)
+                    
+                    if missing_purchases:
+                        messages.error(request, f"Purchases CSV missing columns: {', '.join(missing_purchases)}")
+                    else:
+                        df_purchases['purchase_date'] = pd.to_datetime(df_purchases['purchase_date'], errors='coerce').dt.date
+                        with engine.begin() as conn:
+                            df_purchases[['vendor_id','brand_id','purchase_cost','quantity','purchase_date']].to_sql(
+                                'raw_purchases', con=conn, if_exists='append', index=False
+                            )
+                        messages.success(request, f"✓ {len(df_purchases)} purchase rows uploaded.")
+            except Exception as e:
+                messages.error(request, f"Purchases CSV upload failed: {e}")
 
     return redirect('vendor_portal')
 
