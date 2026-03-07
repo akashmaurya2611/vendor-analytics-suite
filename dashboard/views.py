@@ -155,6 +155,10 @@ def vendor_upload(request):
     except Exception as e:
         messages.error(request, f"Could not read CSV: {e}")
         return redirect('vendor_portal')
+    
+    if df.empty:
+        messages.error(request, "CSV file is empty.")
+        return redirect('vendor_portal')
 
     # Force vendor_id = profile.vendor_id
     df['vendor_id'] = profile.vendor_id
@@ -172,7 +176,6 @@ def vendor_upload(request):
             df['sale_date'] = pd.to_datetime(df['sale_date'], errors='coerce').dt.date
 
             with engine.begin() as conn:
-                conn.execute(text("DELETE FROM raw_sales WHERE vendor_id = :vid"), {"vid": profile.vendor_id})
                 df[['vendor_id','brand_id','sales_dollars','quantity','sale_date']].to_sql(
                     'raw_sales', con=conn, if_exists='append', index=False
                 )
@@ -188,7 +191,6 @@ def vendor_upload(request):
             df['purchase_date'] = pd.to_datetime(df['purchase_date'], errors='coerce').dt.date
 
             with engine.begin() as conn:
-                conn.execute(text("DELETE FROM raw_purchases WHERE vendor_id = :vid"), {"vid": profile.vendor_id})
                 df[['vendor_id','brand_id','purchase_cost','quantity','purchase_date']].to_sql(
                     'raw_purchases', con=conn, if_exists='append', index=False
                 )
@@ -262,6 +264,8 @@ def api_admin_upload(request):
 
 @login_required
 def api_summary(request):
+    if not is_admin(request.user):
+        return JsonResponse({"error": "Admin access required."}, status=403)
     data = VendorMetrics.objects.all()
     total_sales   = data.aggregate(Sum('total_sales'))['total_sales__sum']  or 0
     total_profit  = data.aggregate(Sum('gross_profit'))['gross_profit__sum'] or 0
@@ -278,6 +282,8 @@ def api_summary(request):
 
 @login_required
 def api_data(request):
+    if not is_admin(request.user):
+        return JsonResponse({"error": "Admin access required."}, status=403)
     filter_type = request.GET.get("type", "top")
     qs = VendorMetrics.objects.all().order_by(
         'total_sales' if filter_type == 'bottom' else '-total_sales'
@@ -292,6 +298,8 @@ def api_data(request):
 
 @login_required
 def api_monthly_trend(request):
+    if not is_admin(request.user):
+        return JsonResponse({"error": "Admin access required."}, status=403)
     with connection.cursor() as cursor:
         cursor.execute("""
             SELECT DATE_FORMAT(sale_date, '%Y-%m') AS month, SUM(sales_dollars)
@@ -307,6 +315,8 @@ def api_monthly_trend(request):
 
 @login_required
 def api_spend_distribution(request):
+    if not is_admin(request.user):
+        return JsonResponse({"error": "Admin access required."}, status=403)
     with connection.cursor() as cursor:
         cursor.execute("""
             SELECT brand_id, SUM(purchase_cost) AS total
@@ -321,6 +331,8 @@ def api_spend_distribution(request):
 
 @login_required
 def api_vendors(request):
+    if not is_admin(request.user):
+        return JsonResponse({"error": "Admin access required."}, status=403)
     sort  = request.GET.get('sort', 'total_sales')
     order = request.GET.get('order', 'desc')
     allowed = {'total_sales','gross_profit','profit_margin','vendor_name','vendor_id'}
@@ -335,6 +347,8 @@ def api_vendors(request):
 
 @login_required
 def export_excel(request):
+    if not is_admin(request.user):
+        return redirect('home')
     data = VendorMetrics.objects.all().values(
         'vendor_id', 'vendor_name', 'total_sales', 'gross_profit', 'profit_margin'
     )
